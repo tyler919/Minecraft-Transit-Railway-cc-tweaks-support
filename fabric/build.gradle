@@ -33,10 +33,15 @@ dependencies {
 	if (buildTools.hasWthitSupport()) {
 		modCompileOnly "mcp.mobius.waila:wthit-api:${buildTools.getWthitVersion()}"
 	}
+
+	if (buildTools.hasCCTweakedSupport()) {
+		modCompileOnly "cc.tweaked:cc-tweaked-${minecraftVersion}-fabric:${buildTools.getCCTweakedVersion()}"
+	}
 }
 
 repositories {
 	maven { url = "https://maven.terraformersmc.com/" }
+	maven { url = "https://maven.squiddev.cc" }
 }
 
 java {
@@ -103,6 +108,17 @@ tasks.register("setupFiles") {
 	} else {
 		delete fileTree("src/main/java/org/mtr/init/WthitConfig.java")
 		delete fileTree("src/main/resources/wthit_plugins.json")
+	}
+
+	if (buildTools.hasCCTweakedSupport()) {
+		copy {
+			outputs.upToDateWhen { false }
+			from "src/main/CCTweakedConfigTemplate.java"
+			into "src/main/java/org/mtr/init"
+			rename "(.+)Template.java", "\$1.java"
+		}
+	} else {
+		delete fileTree("src/main/java/org/mtr/init/CCTweakedConfig.java")
 	}
 
 	buildTools.downloadTranslations(crowdinApiKey, geminiApiKey)

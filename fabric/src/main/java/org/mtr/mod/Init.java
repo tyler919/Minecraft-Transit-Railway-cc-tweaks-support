@@ -83,6 +83,15 @@ public final class Init implements Utilities {
 		SoundEvents.init();
 		DummyClass.enableLogging();
 
+		// Register CC: Tweaked integration if available
+		try {
+			Class.forName("org.mtr.init.CCTweakedConfig").getMethod("register").invoke(null);
+		} catch (ClassNotFoundException ignored) {
+			// CC: Tweaked support not compiled in
+		} catch (Exception e) {
+			LOGGER.warn("Failed to initialize CC: Tweaked integration", e);
+		}
+
 		// Register packets
 		REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
 		REGISTRY.registerPacket(PacketAddBalance.class, PacketAddBalance::new);
