@@ -3,9 +3,11 @@ package org.mtr.mod.peripheral;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.mtr.mod.block.BlockLiftButtons;
+import org.mtr.mod.block.BlockLiftTrackFloor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,6 +55,32 @@ public class LiftButtonsPeripheral implements IPeripheral {
 			positions.add(posData);
 		});
 		return positions;
+	}
+
+	@LuaFunction(mainThread = true)
+	public final List<Map<String, Object>> getFloorDetails() {
+		List<Map<String, Object>> floors = new ArrayList<>();
+		blockEntity.forEachTrackPosition(trackPos -> {
+			Map<String, Object> floorData = new HashMap<>();
+			floorData.put("x", trackPos.getX());
+			floorData.put("y", trackPos.getY());
+			floorData.put("z", trackPos.getZ());
+
+			// Try to get floor info from the BlockLiftTrackFloor at this position
+			BlockEntity floorEntity = world.getBlockEntity(new BlockPos(trackPos.getX(), trackPos.getY(), trackPos.getZ()));
+			if (floorEntity instanceof BlockLiftTrackFloor.BlockEntity liftFloor) {
+				floorData.put("floorNumber", liftFloor.getFloorNumber());
+				floorData.put("floorDescription", liftFloor.getFloorDescription());
+				floorData.put("shouldDing", liftFloor.getShouldDing());
+			} else {
+				floorData.put("floorNumber", "");
+				floorData.put("floorDescription", "");
+				floorData.put("shouldDing", false);
+			}
+
+			floors.add(floorData);
+		});
+		return floors;
 	}
 
 	// === Write Methods ===

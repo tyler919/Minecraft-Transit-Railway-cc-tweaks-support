@@ -54,6 +54,11 @@ public final class MTRPeripheralProvider {
 			return new LiftButtonsPeripheral(liftEntity, world, pos);
 		}
 
+		// Lift track floors
+		if (blockEntity instanceof BlockLiftTrackFloor.BlockEntity liftFloorEntity) {
+			return new LiftTrackFloorPeripheral(liftFloorEntity, world, pos);
+		}
+
 		// Arrival Projectors
 		if (blockEntity instanceof BlockArrivalProjectorBase.BlockEntityArrivalProjectorBase projectorEntity) {
 			return new ArrivalProjectorPeripheral(projectorEntity, world, pos);
