@@ -220,6 +220,9 @@ public final class Blocks {
 		TRAIN_REDSTONE_SENSOR = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_sensor"), () -> new Block(new BlockTrainRedstoneSensor()), CreativeModeTabs.RAILWAY_FACILITIES);
 		TRAIN_SCHEDULE_SENSOR = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "train_schedule_sensor"), () -> new Block(new BlockTrainScheduleSensor()), CreativeModeTabs.RAILWAY_FACILITIES);
 
+		// Data Terminal (CC: Tweaked)
+		DATA_TERMINAL = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "data_terminal"), () -> new Block(new BlockDataTerminal(createDefaultBlockSettings(true))), CreativeModeTabs.RAILWAY_FACILITIES);
+
 		// Misc
 		CEILING = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ceiling"), () -> new Block(new BlockCeilingAuto(createDefaultBlockSettings(false, blockState -> 15))), CreativeModeTabs.RAILWAY_FACILITIES);
 		CEILING_LIGHT = registerBlockWithBlockItem(new Identifier(Init.MOD_ID, "ceiling_light"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false, blockState -> 15))), CreativeModeTabs.RAILWAY_FACILITIES);
@@ -446,6 +449,7 @@ public final class Blocks {
 	public static final BlockRegistryObject TRAIN_CARGO_UNLOADER;
 	public static final BlockRegistryObject TRAIN_REDSTONE_SENSOR;
 	public static final BlockRegistryObject TRAIN_SCHEDULE_SENSOR;
+	public static final BlockRegistryObject DATA_TERMINAL;
 	public static final BlockRegistryObject EYE_CANDY;
 
 	private static final ObjectAVLTreeSet<String> REGISTERED_IDENTIFIERS;

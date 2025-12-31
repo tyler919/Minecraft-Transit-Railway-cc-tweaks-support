@@ -71,6 +71,7 @@ public final class BlockEntityTypes {
 		TRAIN_CARGO_UNLOADER = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_cargo_unloader"), BlockTrainCargoUnloader.BlockEntity::new, Blocks.TRAIN_CARGO_UNLOADER::get);
 		TRAIN_REDSTONE_SENSOR = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_redstone_sensor"), BlockTrainRedstoneSensor.BlockEntity::new, Blocks.TRAIN_REDSTONE_SENSOR::get);
 		TRAIN_SCHEDULE_SENSOR = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "train_schedule_sensor"), BlockTrainScheduleSensor.BlockEntity::new, Blocks.TRAIN_SCHEDULE_SENSOR::get);
+		DATA_TERMINAL = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID, "data_terminal"), BlockDataTerminal.BlockEntity::new, Blocks.DATA_TERMINAL::get);
 		EYE_CANDY = Init.REGISTRY.registerBlockEntityType(new Identifier(Init.MOD_ID_NTE, "eye_candy"), BlockEyeCandy.BlockEntity::new, Blocks.EYE_CANDY::get);
 	}
 
@@ -137,6 +138,7 @@ public final class BlockEntityTypes {
 	public static final BlockEntityTypeRegistryObject<BlockTrainCargoUnloader.BlockEntity> TRAIN_CARGO_UNLOADER;
 	public static final BlockEntityTypeRegistryObject<BlockTrainRedstoneSensor.BlockEntity> TRAIN_REDSTONE_SENSOR;
 	public static final BlockEntityTypeRegistryObject<BlockTrainScheduleSensor.BlockEntity> TRAIN_SCHEDULE_SENSOR;
+	public static final BlockEntityTypeRegistryObject<BlockDataTerminal.BlockEntity> DATA_TERMINAL;
 	public static final BlockEntityTypeRegistryObject<BlockEyeCandy.BlockEntity> EYE_CANDY;
 
 	public static void init() {

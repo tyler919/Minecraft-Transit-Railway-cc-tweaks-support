@@ -64,6 +64,11 @@ public final class MTRPeripheralProvider {
 			return new ArrivalProjectorPeripheral(projectorEntity, world, pos);
 		}
 
+		// Data Terminal
+		if (blockEntity instanceof BlockDataTerminal.BlockEntity dataTerminalEntity) {
+			return new DataTerminalPeripheral(dataTerminalEntity, world, pos);
+		}
+
 		return null;
 	}
 }

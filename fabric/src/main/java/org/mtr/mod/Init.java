@@ -28,6 +28,7 @@ import org.mtr.mapping.tool.DummyClass;
 import org.mtr.mixin.PlayerTeleportationStateAccessor;
 import org.mtr.mod.config.Config;
 import org.mtr.mod.data.ArrivalsCacheServer;
+import org.mtr.mod.data.DataTerminalCache;
 import org.mtr.mod.data.RailActionModule;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
@@ -192,6 +193,9 @@ public final class Init implements Utilities {
 			serverPort = defaultPort <= 0 ? -1 : findFreePort(defaultPort);
 			main = new Main(minecraftServer.getSavePath(WorldSavePath.getRootMapped()).resolve("mtr"), serverPort, Config.getServer().getUseThreadedSimulation(), Config.getServer().getUseThreadedFileLoading(), webserverSetup, WORLD_ID_LIST.toArray(new String[0]));
 
+			// Pre-initialize DataTerminalCache for all worlds so CC:T peripherals have data immediately
+			MinecraftServerHelper.iterateWorlds(minecraftServer, DataTerminalCache::preInitialize);
+
 			serverTick = 0;
 			lastSavedMillis = System.currentTimeMillis();
 			sendWorldTimeUpdate = () -> {
@@ -233,6 +237,7 @@ public final class Init implements Utilities {
 			}
 			serverPort = 0;
 			RIDING_PLAYERS.clear();
+			DataTerminalCache.clearAll();
 		});
 
 		REGISTRY.eventRegistry.registerStartServerTick(() -> {
@@ -241,6 +246,7 @@ public final class Init implements Utilities {
 			}
 
 			ArrivalsCacheServer.tickAll();
+			DataTerminalCache.tickAll();
 			serverTick++;
 
 			if (main != null) {
