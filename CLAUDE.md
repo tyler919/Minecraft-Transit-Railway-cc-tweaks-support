@@ -208,6 +208,29 @@ All CC:T peripheral logs are prefixed with `[MTR-CCT]` for easy filtering:
 - Lua function calls from ComputerCraft
 - Peripheral registration events
 
+### In-Mod Log Watcher (`/mtr watcher`)
+
+Ships **inside the mod** (`fabric/src/main/java/org/mtr/mod/watcher/`) so bug reports reach the fork
+from remote servers the maintainer can't access. It is **off by default** and enabled per-session in-game.
+
+**Commands** (op level 2):
+| Command | Effect |
+|---------|--------|
+| `/mtr watcher start` | Tail this server's `logs/latest.log`; auto-file crashes + `[MTR-CCT]` errors as issues (label `auto-report`), de-duplicated by signature |
+| `/mtr watcher stop` | Stop watching |
+| `/mtr watcher status` | Running state + issues filed this session |
+| `/mtr watcher report` | Grab the **last ~1000 chars** of the log (anything at all) and open one issue labeled `log` |
+| `/mtr watcher test` | File a test issue to confirm the token + connectivity |
+
+**Setup on the host machine:** first run writes `config/mtr-watcher.json`. Put a GitHub token with
+`issues:write` on the fork into `githubToken`, then `/mtr watcher start`. **The token is never bundled
+in the jar** — it lives only in the operator's config file. Other keys: `githubOwner`, `githubRepo`,
+`pollSeconds` (min 2), `maxIssuesPerHour` (rate cap).
+
+**Classes:** `WatcherConfig` (config I/O), `LogWatcher` (tail thread + detection + de-dup + rate limit),
+`IssueReporter` (GitHub REST POST, Java-8-safe `HttpsURLConnection`). Wired in `Init.java` under the
+`/mtr` command and stopped in the `registerServerStopping` hook.
+
 ## Contributing
 
 1. Fork and create a branch from the development version branch

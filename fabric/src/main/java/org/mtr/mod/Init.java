@@ -34,6 +34,7 @@ import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.packet.*;
 import org.mtr.mod.servlet.MinecraftOperationProcessor;
 import org.mtr.mod.servlet.RequestHelper;
+import org.mtr.mod.watcher.LogWatcher;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -176,6 +177,30 @@ public final class Init implements Utilities {
 					}
 				})));
 			});
+			// CC:Tweaked log watcher — /mtr watcher start|stop|status|report|test
+			commandBuilderMtr.then("watcher", commandBuilderWatcher -> {
+				commandBuilderWatcher.permissionLevel(2);
+				commandBuilderWatcher.then("start", inner -> inner.executes(contextHandler -> {
+					LogWatcher.getInstance().start(contextHandler.getServer().getRunDirectory().toPath(), msg -> contextHandler.sendSuccess(msg, false));
+					return 1;
+				}));
+				commandBuilderWatcher.then("stop", inner -> inner.executes(contextHandler -> {
+					LogWatcher.getInstance().stop(msg -> contextHandler.sendSuccess(msg, false));
+					return 1;
+				}));
+				commandBuilderWatcher.then("status", inner -> inner.executes(contextHandler -> {
+					LogWatcher.getInstance().status(msg -> contextHandler.sendSuccess(msg, false));
+					return 1;
+				}));
+				commandBuilderWatcher.then("report", inner -> inner.executes(contextHandler -> {
+					LogWatcher.getInstance().report(contextHandler.getServer().getRunDirectory().toPath(), msg -> contextHandler.sendSuccess(msg, false));
+					return 1;
+				}));
+				commandBuilderWatcher.then("test", inner -> inner.executes(contextHandler -> {
+					LogWatcher.getInstance().test(contextHandler.getServer().getRunDirectory().toPath(), msg -> contextHandler.sendSuccess(msg, false));
+					return 1;
+				}));
+			});
 		}, "minecrafttransitrailway");
 
 		// Register events
@@ -238,6 +263,7 @@ public final class Init implements Utilities {
 			serverPort = 0;
 			RIDING_PLAYERS.clear();
 			DataTerminalCache.clearAll();
+			LogWatcher.getInstance().stop(null);
 		});
 
 		REGISTRY.eventRegistry.registerStartServerTick(() -> {
