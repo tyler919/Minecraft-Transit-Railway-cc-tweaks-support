@@ -225,8 +225,8 @@ public class PIDSPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final void setPlatformIds(List<?> platformIdList) {
-		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
+	public final void setPlatformIds(Map<?, ?> platformIdMap) {
+		// CC:Tweaked doesn't support List params; a Lua array arrives as a Map. Convert its values.
 		String[] messages = new String[dataBlockEntity.maxArrivals];
 		boolean[] hideArrivals = new boolean[dataBlockEntity.maxArrivals];
 
@@ -236,8 +236,8 @@ public class PIDSPeripheral implements IPeripheral {
 		}
 
 		LongAVLTreeSet newPlatformIds = new LongAVLTreeSet();
-		if (platformIdList != null) {
-			for (Object platformId : platformIdList) {
+		if (platformIdMap != null) {
+			for (Object platformId : platformIdMap.values()) {
 				if (platformId instanceof Number) {
 					newPlatformIds.add(((Number) platformId).longValue());
 				}

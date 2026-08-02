@@ -148,10 +148,11 @@ Peripherals are in `fabric/src/main/java/org/mtr/mod/peripheral/`.
 > server responds (mirrors `waitForData`), so a single call returns data. Prefer `*Now` for scripts. The
 > server response is logged as `[MTR-CCT] ARRIVALS response: N arrival(s)` for diagnostics.
 
-> **CC:Tweaked wildcard rule.** `@LuaFunction` methods with collection PARAMETERS must use `List<?>` (not
-> `List<Long>`/`List<Integer>`) or CC:T refuses to register them (logs "non-wildcard argument"). All setters
-> (`setSignalColors`, `setFilterRouteIds`, `setPlatformIds`) and `getArrivalsForPlatforms*` take `List<?>` and
-> convert elements via `((Number) o).longValue()/intValue()` internally.
+> **CC:Tweaked collection-parameter rule.** CC:T does NOT support `java.util.List` parameters on `@LuaFunction`
+> methods at all — `List<Long>` logs "non-wildcard argument", and even `List<?>` logs "Unknown parameter type
+> java.util.List". A Lua array/table arrives as a **`Map<?, ?>`** (keys 1,2,3…). So collection-taking methods
+> (`setSignalColors`, `setFilterRouteIds`, `setPlatformIds`, `getArrivalsForPlatforms`/`Now`) take `Map<?, ?>` and
+> iterate `.values()`, converting via `((Number) o).longValue()/intValue()`. Return types like `List<Map>` are fine.
 
 **3. mtr_signal** - Signal Blocks
 | Block | Signal blocks (all variants) |

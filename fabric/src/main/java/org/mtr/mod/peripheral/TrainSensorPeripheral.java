@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TrainSensorPeripheral implements IPeripheral {
 
@@ -59,11 +60,11 @@ public class TrainSensorPeripheral implements IPeripheral {
 	// === Write Methods ===
 
 	@LuaFunction(mainThread = true)
-	public final void setFilterRouteIds(List<?> routeIds) {
-		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
+	public final void setFilterRouteIds(Map<?, ?> routeIds) {
+		// CC:Tweaked doesn't support List params; a Lua array arrives as a Map. Convert its values.
 		LongAVLTreeSet newRouteIds = new LongAVLTreeSet();
 		if (routeIds != null) {
-			for (Object routeId : routeIds) {
+			for (Object routeId : routeIds.values()) {
 				if (routeId instanceof Number) {
 					newRouteIds.add(((Number) routeId).longValue());
 				}

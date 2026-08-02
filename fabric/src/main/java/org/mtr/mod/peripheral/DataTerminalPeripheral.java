@@ -195,12 +195,12 @@ public class DataTerminalPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final List<Map<String, Object>> getArrivalsForPlatforms(List<?> platformIdList) {
-		if (world.isClient() || platformIdList == null || platformIdList.isEmpty()) {
+	public final List<Map<String, Object>> getArrivalsForPlatforms(Map<?, ?> platformIdMap) {
+		if (world.isClient() || platformIdMap == null || platformIdMap.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		LongAVLTreeSet platformIds = toPlatformIdSet(platformIdList);
+		LongAVLTreeSet platformIds = toPlatformIdSet(platformIdMap);
 
 		ServerWorld serverWorld = (ServerWorld) world;
 		ArrivalsCacheServer cache = ArrivalsCacheServer.getInstance(new org.mtr.mapping.holder.ServerWorld(serverWorld));
@@ -224,17 +224,17 @@ public class DataTerminalPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = false)
-	public final List<Map<String, Object>> getArrivalsForPlatformsNow(List<?> platformIdList) {
-		if (world.isClient() || platformIdList == null || platformIdList.isEmpty()) {
+	public final List<Map<String, Object>> getArrivalsForPlatformsNow(Map<?, ?> platformIdMap) {
+		if (world.isClient() || platformIdMap == null || platformIdMap.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return convertArrivalsToList(fetchArrivalsBlocking(toPlatformIdSet(platformIdList)));
+		return convertArrivalsToList(fetchArrivalsBlocking(toPlatformIdSet(platformIdMap)));
 	}
 
-	// CC:Tweaked requires wildcard generics on Lua parameters; convert the list of numbers here.
-	private static LongAVLTreeSet toPlatformIdSet(List<?> platformIdList) {
+	// CC:Tweaked does not support List parameters; a Lua array arrives as a Map. Convert its values.
+	private static LongAVLTreeSet toPlatformIdSet(Map<?, ?> platformIdMap) {
 		LongAVLTreeSet platformIds = new LongAVLTreeSet();
-		for (Object platformId : platformIdList) {
+		for (Object platformId : platformIdMap.values()) {
 			if (platformId instanceof Number) {
 				platformIds.add(((Number) platformId).longValue());
 			}

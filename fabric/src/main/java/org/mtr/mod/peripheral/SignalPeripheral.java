@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SignalPeripheral implements IPeripheral {
 
@@ -81,11 +82,11 @@ public class SignalPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final void setSignalColors(List<?> colors, boolean isBackSide) {
-		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
+	public final void setSignalColors(Map<?, ?> colors, boolean isBackSide) {
+		// CC:Tweaked doesn't support List params; a Lua array arrives as a Map. Convert its values.
 		IntAVLTreeSet colorSet = new IntAVLTreeSet();
 		if (colors != null) {
-			for (Object color : colors) {
+			for (Object color : colors.values()) {
 				if (color instanceof Number) {
 					colorSet.add(((Number) color).intValue());
 				}
