@@ -195,19 +195,59 @@ public class DataTerminalPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final List<Map<String, Object>> getArrivalsForPlatforms(List<Long> platformIdList) {
+	public final List<Map<String, Object>> getArrivalsForPlatforms(List<?> platformIdList) {
 		if (world.isClient() || platformIdList == null || platformIdList.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		LongAVLTreeSet platformIds = new LongAVLTreeSet();
-		platformIdList.forEach(platformIds::add);
+		LongAVLTreeSet platformIds = toPlatformIdSet(platformIdList);
 
 		ServerWorld serverWorld = (ServerWorld) world;
 		ArrivalsCacheServer cache = ArrivalsCacheServer.getInstance(new org.mtr.mapping.holder.ServerWorld(serverWorld));
 		ObjectArrayList<ArrivalResponse> arrivals = cache.requestArrivals(platformIds);
 
 		return convertArrivalsToList(arrivals);
+	}
+
+	// === Blocking arrivals (single call returns data) ===
+	// The non-blocking methods above return empty until the async request lands. These block the
+	// (non-main) Lua thread until the server responds, so one call yields data — like waitForData().
+
+	@LuaFunction(mainThread = false)
+	public final List<Map<String, Object>> getArrivalsForPlatformNow(long platformId) {
+		if (world.isClient()) {
+			return Collections.emptyList();
+		}
+		LongAVLTreeSet platformIds = new LongAVLTreeSet();
+		platformIds.add(platformId);
+		return convertArrivalsToList(fetchArrivalsBlocking(platformIds));
+	}
+
+	@LuaFunction(mainThread = false)
+	public final List<Map<String, Object>> getArrivalsForPlatformsNow(List<?> platformIdList) {
+		if (world.isClient() || platformIdList == null || platformIdList.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return convertArrivalsToList(fetchArrivalsBlocking(toPlatformIdSet(platformIdList)));
+	}
+
+	// CC:Tweaked requires wildcard generics on Lua parameters; convert the list of numbers here.
+	private static LongAVLTreeSet toPlatformIdSet(List<?> platformIdList) {
+		LongAVLTreeSet platformIds = new LongAVLTreeSet();
+		for (Object platformId : platformIdList) {
+			if (platformId instanceof Number) {
+				platformIds.add(((Number) platformId).longValue());
+			}
+		}
+		return platformIds;
+	}
+
+	private ObjectArrayList<ArrivalResponse> fetchArrivalsBlocking(LongAVLTreeSet platformIds) {
+		ServerWorld serverWorld = (ServerWorld) world;
+		ArrivalsCacheServer cache = ArrivalsCacheServer.getInstance(new org.mtr.mapping.holder.ServerWorld(serverWorld));
+		ObjectArrayList<ArrivalResponse> arrivals = cache.requestArrivalsBlocking(platformIds, 3000);
+		Init.LOGGER.info("[MTR-CCT] getArrivals*Now blocking returned {} arrival(s) for {} platform(s)", arrivals.size(), platformIds.size());
+		return arrivals;
 	}
 
 	// === Data Readiness Methods ===

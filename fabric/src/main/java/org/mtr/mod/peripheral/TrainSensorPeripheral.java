@@ -59,10 +59,15 @@ public class TrainSensorPeripheral implements IPeripheral {
 	// === Write Methods ===
 
 	@LuaFunction(mainThread = true)
-	public final void setFilterRouteIds(List<Long> routeIds) {
+	public final void setFilterRouteIds(List<?> routeIds) {
+		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
 		LongAVLTreeSet newRouteIds = new LongAVLTreeSet();
 		if (routeIds != null) {
-			routeIds.forEach(newRouteIds::add);
+			for (Object routeId : routeIds) {
+				if (routeId instanceof Number) {
+					newRouteIds.add(((Number) routeId).longValue());
+				}
+			}
 		}
 		blockEntity.setData(newRouteIds, blockEntity.getStoppedOnly(), blockEntity.getMovingOnly());
 	}

@@ -125,7 +125,31 @@ public class PIDSPeripheral implements IPeripheral {
 		ObjectArrayList<ArrivalResponse> arrivals = cache.requestArrivals(platformIds);
 
 		Init.LOGGER.info("[MTR-CCT] getArrivals() returning {} arrivals", arrivals.size());
+		return buildArrivalsResult(arrivals);
+	}
 
+	/**
+	 * Blocking variant: fire a request and wait for the server response so a single call returns
+	 * data, instead of getArrivals() which is empty until the async cache fills. mainThread = false.
+	 */
+	@LuaFunction(mainThread = false)
+	public final List<Map<String, Object>> getArrivalsNow() {
+		if (world.isClient()) {
+			return Collections.emptyList();
+		}
+		LongAVLTreeSet platformIds = dataBlockEntity.getPlatformIds();
+		if (platformIds == null || platformIds.isEmpty()) {
+			Init.LOGGER.warn("[MTR-CCT] getArrivalsNow() - no platform IDs configured on this PIDS");
+			return Collections.emptyList();
+		}
+		ServerWorld serverWorld = (ServerWorld) world;
+		ArrivalsCacheServer cache = ArrivalsCacheServer.getInstance(new org.mtr.mapping.holder.ServerWorld(serverWorld));
+		ObjectArrayList<ArrivalResponse> arrivals = cache.requestArrivalsBlocking(platformIds, 3000);
+		Init.LOGGER.info("[MTR-CCT] getArrivalsNow() (blocking) returning {} arrivals", arrivals.size());
+		return buildArrivalsResult(arrivals);
+	}
+
+	private List<Map<String, Object>> buildArrivalsResult(ObjectArrayList<ArrivalResponse> arrivals) {
 		List<Map<String, Object>> result = new ArrayList<>();
 		for (ArrivalResponse arrival : arrivals) {
 			Map<String, Object> arrivalData = new HashMap<>();
@@ -201,7 +225,8 @@ public class PIDSPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final void setPlatformIds(List<Long> platformIdList) {
+	public final void setPlatformIds(List<?> platformIdList) {
+		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
 		String[] messages = new String[dataBlockEntity.maxArrivals];
 		boolean[] hideArrivals = new boolean[dataBlockEntity.maxArrivals];
 
@@ -212,7 +237,11 @@ public class PIDSPeripheral implements IPeripheral {
 
 		LongAVLTreeSet newPlatformIds = new LongAVLTreeSet();
 		if (platformIdList != null) {
-			platformIdList.forEach(newPlatformIds::add);
+			for (Object platformId : platformIdList) {
+				if (platformId instanceof Number) {
+					newPlatformIds.add(((Number) platformId).longValue());
+				}
+			}
 		}
 
 		dataBlockEntity.setData(messages, hideArrivals, newPlatformIds, dataBlockEntity.getDisplayPage());

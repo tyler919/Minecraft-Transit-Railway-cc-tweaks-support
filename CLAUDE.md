@@ -141,7 +141,17 @@ Peripherals are in `fabric/src/main/java/org/mtr/mod/peripheral/`.
 **2. mtr_data_terminal** - Data Terminal Block
 | Block | Data Terminal |
 |-------|---------------|
-| Methods | `getStations()`, `getDepots()`, `getRoutes()`, `getArrivalsForPlatform(id)`, `getArrivalsForPlatforms(list)`, `waitForData()`, `waitForDataWithTimeout(ms)`, `isDataReady()`, `refreshData()`, `refreshArrivalsCache()`, `getDiagnostics()`, `getStationCount()`, `getDepotCount()`, `getRouteCount()`, `getTerminalPosition()` |
+| Methods | `getStations()`, `getDepots()`, `getRoutes()`, `getArrivalsForPlatform(id)`, `getArrivalsForPlatforms(list)`, **`getArrivalsForPlatformNow(id)`**, **`getArrivalsForPlatformsNow(list)`**, `waitForData()`, `waitForDataWithTimeout(ms)`, `isDataReady()`, `refreshData()`, `refreshArrivalsCache()`, `getDiagnostics()`, `getStationCount()`, `getDepotCount()`, `getRouteCount()`, `getTerminalPosition()` |
+
+> **Arrivals are async.** `getArrivals*` (non-blocking) return empty until `tick()` fills the cache, so a
+> one-shot call sees no trains. The `*Now` variants (`mainThread=false`) fire a request and BLOCK until the
+> server responds (mirrors `waitForData`), so a single call returns data. Prefer `*Now` for scripts. The
+> server response is logged as `[MTR-CCT] ARRIVALS response: N arrival(s)` for diagnostics.
+
+> **CC:Tweaked wildcard rule.** `@LuaFunction` methods with collection PARAMETERS must use `List<?>` (not
+> `List<Long>`/`List<Integer>`) or CC:T refuses to register them (logs "non-wildcard argument"). All setters
+> (`setSignalColors`, `setFilterRouteIds`, `setPlatformIds`) and `getArrivalsForPlatforms*` take `List<?>` and
+> convert elements via `((Number) o).longValue()/intValue()` internally.
 
 **3. mtr_signal** - Signal Blocks
 | Block | Signal blocks (all variants) |

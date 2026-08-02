@@ -81,10 +81,15 @@ public class SignalPeripheral implements IPeripheral {
 	}
 
 	@LuaFunction(mainThread = true)
-	public final void setSignalColors(List<Integer> colors, boolean isBackSide) {
+	public final void setSignalColors(List<?> colors, boolean isBackSide) {
+		// CC:Tweaked requires wildcard generics on Lua parameters; convert here.
 		IntAVLTreeSet colorSet = new IntAVLTreeSet();
 		if (colors != null) {
-			colors.forEach(colorSet::add);
+			for (Object color : colors) {
+				if (color instanceof Number) {
+					colorSet.add(((Number) color).intValue());
+				}
+			}
 		}
 		blockEntity.setData(blockEntity.getAcceptRedstone(), blockEntity.getOutputRedstone(), colorSet, isBackSide);
 	}

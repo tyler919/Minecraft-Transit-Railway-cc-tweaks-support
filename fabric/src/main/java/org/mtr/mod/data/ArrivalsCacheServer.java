@@ -41,7 +41,9 @@ public final class ArrivalsCacheServer extends ArrivalsCache {
 				new ArrivalsRequest(new LongImmutableList(platformIds), 10, -1),
 				arrivalsResponse -> {
 					millisOffset = arrivalsResponse.getCurrentTime() - System.currentTimeMillis();
-					callback.accept(arrivalsResponse.getArrivals());
+					final ObjectList<ArrivalResponse> arrivals = arrivalsResponse.getArrivals();
+					Init.LOGGER.info("[MTR-CCT] ARRIVALS response: {} arrival(s) for {} requested platform(s) (offset {}ms)", arrivals.size(), platformIds.size(), millisOffset);
+					callback.accept(arrivals);
 				},
 				ArrivalsResponse.class
 		);
